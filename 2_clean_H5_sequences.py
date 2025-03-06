@@ -3,17 +3,24 @@ import utils
 
 def main():
     for H5 in utils.subtypes:
-        read_path = "data/subtype_sequences/{0}/00_{0}_raw.fasta".format(H5)
-        write_path = "data/subtype_sequences/{0}/01_{0}.fasta".format(H5)
-        seq_records = utils.read_fasta(read_path)
-        keep_records = [False] * len(seq_records)
-        keep_records = check_sequence_start(seq_records, keep_records)
-        keep_records = check_sequence_end(seq_records, keep_records)
-        keep_records = check_sequence_triplet(seq_records, keep_records)
-        keep_records = keep_term(seq_records, keep_records, term=H5)
-        new_seq_records = filter_seq_records(seq_records, keep_records)
-        utils.write_fasta(new_seq_records, write_path)
-        print("Completed: {0} {1} sequences meet criteria.".format(len(new_seq_records), H5))
+        read_path = "data/subtype_sequences/{0}/00_{0}_raw.fasta".format(H5) # read file location
+        write_path = "data/subtype_sequences/{0}/01_{0}.fasta".format(H5) # output file destination
+        seq_records = utils.read_fasta(read_path) # Read fasta sequences
+
+        # List size equal to number of sequences. Filled with False values by default. If sequence
+        # meets criteria then false will be changed to True.
+        keep_records = [False] * len(seq_records) 
+
+        keep_records = check_sequence_start(seq_records, keep_records) # Check for start codon.
+        keep_records = check_sequence_end(seq_records, keep_records) # Check for stop codon.
+        keep_records = check_sequence_triplet(seq_records, keep_records) # Check sequence length divisible by 3.
+        keep_records = keep_term(seq_records, keep_records, term=H5) # Check for subtype term in sequence description.
+
+        # Where keep_records element is True add sequence to new_seq_records.
+        new_seq_records = filter_seq_records(seq_records, keep_records) 
+
+        utils.write_fasta(new_seq_records, write_path) # Write fasta file.
+        print("Completed: {0} {1} sequences meet criteria.".format(len(new_seq_records), H5)) # Print number of sequences kept.
 
 # Generate new list of data that is based on keep_seqs. If true then add to new list.
 def filter_seq_records(seq_records, keep_records):
