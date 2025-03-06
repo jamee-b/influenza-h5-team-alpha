@@ -4,12 +4,13 @@ import re
 
 def main():
     for H5 in utils.subtypes:
-        read_path = "data/subtype_sequences/{0}/01_{0}.fasta".format(H5)
-        write_path = "data/subtype_sequences/{0}/{0}_hosts.csv".format(H5)
-        seq_records = utils.read_fasta(read_path)
-        host_df = get_hosts(seq_records)
-        utils.df_to_csv(host_df, write_path)
+        read_path = "data/subtype_sequences/{0}/01_{0}.fasta".format(H5) # read file location
+        write_path = "data/subtype_sequences/{0}/{0}_hosts.csv".format(H5) # write file destination
+        seq_records = utils.read_fasta(read_path) # read fasta sequences
+        host_df = get_hosts(seq_records) # Extract host name and number of times it occurs into dataframe.
+        utils.df_to_csv(host_df, write_path) # Write dataframe to csv
 
+# Get host names and occurences from sequence description and return in dataframe.
 def get_hosts(seq_records):
     temp_list = []
     for i in range(0, len(seq_records)):
