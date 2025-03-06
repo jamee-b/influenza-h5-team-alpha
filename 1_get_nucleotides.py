@@ -1,29 +1,35 @@
 from Bio import Entrez
 from config import email
+from utils import subtypes
 
 def main():
-    search_term = input("Enter NCBI nucleotide search phrase: ")
-    output_file = input("Enter output FASTA file name: ")
+    # Provide user email for NCBI account.
     Entrez.email = email
-    results = get_accessions(search_term)
-    acc_list = results[0]
-    webenv = results[1]
-    query_key = results[2]
-    get_sequences(acc_list, webenv, query_key, output_file)
 
-def get_accessions(search_term):
-    stream = Entrez.esearch(db="nucleotide", term=search_term, usehistory="y", idtype="acc", retmax=1000)
-    search_results = Entrez.read(stream)
+    # Uses each H5 subtype as the search term in NCBI's nucleotide database
+    # and writes sequences to fasta file.
+    for H5 in subtypes:
+        acc_list, webenv, query_key = get_stream_data(H5)
+        get_sequences(acc_list, webenv, query_key, H5)
+
+# Return NCBI stream data. Ideal when dealing with many sequences.
+def get_stream_data(H5):
+    print("Fetching steam data for {0}.".format(H5))
+    stream = Entrez.esearch(db="nucleotide", term=H5, usehistory="y", idtype="acc", retmax=1000000)
+    stream_data = Entrez.read(stream)
     stream.close()
-    return [search_results["IdList"], search_results["WebEnv"], search_results["QueryKey"]]
+    return stream_data["IdList"], stream_data["WebEnv"], stream_data["QueryKey"]
 
-def get_sequences(acc_list, webenv, query_key, output_file):
-    batch_size = 100
+# Use stream data to access get sequences and write to file.
+def get_sequences(acc_list, webenv, query_key, H5):
+    batch_size = 1000
     count = len(acc_list)
-    output = open(output_file, "w")
+    path = "data/subtype_sequences/{0}/00_{0}_raw.fasta".format(H5)
+    output = open(path, "w")
+    print("Fetching sequences for {0}.".format(H5))
     for start in range(0, count, batch_size):
         end = min(count, start + batch_size)
-        print("Going to download record %i to %i" % (start + 1, end))
+        print("Downloading record %i to %i" % (start + 1, end))
 
         stream = Entrez.efetch(
             db="nucleotide",
@@ -39,7 +45,9 @@ def get_sequences(acc_list, webenv, query_key, output_file):
         data = stream.read()
         stream.close()
         output.write(data)
+
     output.close()
+    print("Created 00_{0}_raw.fasta.".format(H5))
 
 if __name__ == "__main__":
     main()
