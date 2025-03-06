@@ -23,3 +23,7 @@ def write_fasta(seq_records, path):
     with open(path, "w") as output_handle:
         for i in seq_records:
             SeqIO.write(i, output_handle, "fasta")
+
+# Write dataframe to CSV.
+def df_to_csv(df, path):
+    df.to_csv(path, index=False)
