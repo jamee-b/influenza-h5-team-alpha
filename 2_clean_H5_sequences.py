@@ -1,33 +1,19 @@
 import re
-from Bio import SeqIO
+import utils
 
 def main():
-    fasta_file = input("Enter fasta file: ")
-    output_file = input("Enter output file: ")
-    subtype = input("Enter virus subtype (ex. H5N1): ")
-    seq_records = read_fasta_to_seq_records(fasta_file)
-    keep_records = check_sequence_start(seq_records)
-    keep_records = check_sequence_end(seq_records, keep_records)
-    keep_records = check_sequence_triplet(seq_records, keep_records)
-    keep_records = filter_for_term(seq_records, keep_records, term="Influenza A virus")
-    keep_records = filter_for_term(seq_records, keep_records, term=subtype)
-    keep_records = remove_term(seq_records, keep_records, term="partial cds")
-    kept_seq_records = filter_seq_records(seq_records, keep_records)
-    print("There are " + str(len(kept_seq_records)) + " " + subtype + " sequences.")
-    write_fasta(kept_seq_records, output_file)
-
-# Parse fasta file and read in as sequence record. Append to list.
-def read_fasta_to_seq_records(fasta_file):
-    seq_records = []
-    for record in SeqIO.parse(fasta_file, "fasta"):
-        seq_records.append(record)
-    return seq_records
-
-# Write out sequence records into single fasta file.
-def write_fasta(seq_records, output_file):
-    with open(output_file, "w") as output_handle:
-        for i in seq_records:
-            SeqIO.write(i, output_handle, "fasta")
+    for H5 in utils.subtypes:
+        read_path = "data/subtype_sequences/{0}/00_{0}_raw.fasta".format(H5)
+        write_path = "data/subtype_sequences/{0}/01_{0}.fasta".format(H5)
+        seq_records = utils.read_fasta(read_path)
+        keep_records = [False] * len(seq_records)
+        keep_records = check_sequence_start(seq_records, keep_records)
+        keep_records = check_sequence_end(seq_records, keep_records)
+        keep_records = check_sequence_triplet(seq_records, keep_records)
+        keep_records = keep_term(seq_records, keep_records, term=H5)
+        new_seq_records = filter_seq_records(seq_records, keep_records)
+        utils.write_fasta(new_seq_records, write_path)
+        print("Completed: {0} {1} sequences meet criteria.".format(len(new_seq_records), H5))
 
 # Generate new list of data that is based on keep_seqs. If true then add to new list.
 def filter_seq_records(seq_records, keep_records):
@@ -40,7 +26,7 @@ def filter_seq_records(seq_records, keep_records):
     return kept_seq_records
 
 # Filters for term in sequence record description.
-def filter_for_term(seq_records, keep_records, term):
+def keep_term(seq_records, keep_records, term):
     for i in range(0, len(seq_records)):
         record = seq_records[i]
         if keep_records[i] == True:
@@ -61,15 +47,14 @@ def remove_term(seq_records, keep_records, term):
                 pass
     return keep_records
 
-# If first three nucleotides are ATG add true to keep_seq list. Else add False.
-def check_sequence_start(seq_records):
-    keep_records = []
+# If first three nucleotides are ATG change keep_record element from false to true. Else pass.
+def check_sequence_start(seq_records, keep_records):
     for i in range(0, len(seq_records)):
         record = seq_records[i]
         if record.seq[0:3] == "ATG":
-            keep_records.append(True)
+            keep_records[i] = True
         else:
-            keep_records.append(False)
+            pass
     return keep_records
 
 # If last three nucleotides are TAA, TGA, and TAG keep sequences. Else do not.
