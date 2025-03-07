@@ -146,6 +146,17 @@ def df_to_csv(df, path):
 def csv_to_df(path):
     return pd.read_csv(path)
 
+# Scores to dataframe
+def cai_scores_to_df(scores, subtype, host):
+    df = pd.DataFrame(columns=['cai_score'], data=scores)
+    df['subtype'] = subtype
+    df['host'] = host
+    return df
+
+# Takes list of dataframes and concatenates into single datafarame
+def concat_df(list_df):
+    return pd.concat(list_df, ignore_index=True)
+
 # Standardize host name.
 # Supported host types: duck, chicken, swine, bovine, and human.
 def standarize_host(record_description, 
