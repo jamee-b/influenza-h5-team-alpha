@@ -89,7 +89,7 @@ human_host_names = [
                         'jiangsu',
                         'jianxi',
                         'kienGiang',
-                        'Nanjing',
+                        'nanjing',
                         'puerto rico',
                         'prachinburi',
                         'shenzhen',
@@ -98,7 +98,7 @@ human_host_names = [
                         'vietnam',
                         'viet nam',
                         'washington'
-                        'Xinjiang',
+                        'xinjiang',
                         'yangzhou',
                         'yunnan',
                         'zhejiang'
