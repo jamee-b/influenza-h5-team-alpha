@@ -131,6 +131,13 @@ def write_genbank(handle, path):
     with open(path, 'w') as f:
         f.write(handle.read())
 
+# Read genbank files to list.
+def read_genbank(path):
+    gb_records = []
+    for record in SeqIO.parse(path, "genbank"):
+        gb_records.append(record)
+    return gb_records
+
 # Write dataframe to CSV.
 def df_to_csv(df, path):
     df.to_csv(path, index=False)
