@@ -1,29 +1,12 @@
-from Bio import SeqIO
-from Bio import Entrez
-import pandas as pd
-from config import email
+import utils
 
 def main():
-    filename = input("Enter filename: ")
-    host = input("Enter host: ")
-    seq_info = read_csv(filename) # Dataframe containing extracted accession ids and gene products.
-    handle = get_genbank_files(accessions=seq_info['accession'].to_list())
-    write_genbank_file(handle, host)
-
-def read_csv(filename):
-    path = 'Data/Genbank/{0}'.format(filename)
-    df = pd.read_csv(path)
-    return df
-
-def get_genbank_files(accessions):
-    Entrez.email = email
-    handle = Entrez.efetch(db='nucleotide', id=accessions, rettype='gb', retmode='text')
-    return handle
-
-def write_genbank_file(handle, host):
-    path = 'Data/Genbank/{0}_genbank.gb'.format(host)
-    with open(path, 'w') as f:
-        f.write(handle.read())
+    for host in utils.host_names:
+        read_path = "data/genbank/host_info/{0}.csv".format(host) # Input file location
+        write_path = "data/genbank/{0}.gb".format(host) # Write file destination
+        seq_info = utils.csv_to_df(read_path) # Dataframe with accession and protein ids
+        handle = utils.get_genbank_handle(accessions=seq_info['accession'].to_list()) # Retrieves genbank handle using list of accession ids
+        utils.write_genbank(handle, write_path) # Write genbank file
 
 if __name__ == '__main__':
     main()
