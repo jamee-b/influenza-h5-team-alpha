@@ -184,7 +184,6 @@ def standarize_host(record_description,
             return record_description
 
     # Check if host name matches any name in human_host_names
-    # Check if host name matches any name in swine_host_names
     # Change section of record descrition from 'Influenza A virus' to 'Influenza A virus human'
     for name in human_host_names:
         if name.lower() == host_name.lower():
