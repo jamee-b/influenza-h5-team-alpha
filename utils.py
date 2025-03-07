@@ -1,5 +1,8 @@
 from Bio import SeqIO
+from Bio import Entrez
+import pandas as pd
 import re
+import config
 
 # List of all subtypes for H5 influenza A.
 subtypes = [
@@ -117,9 +120,24 @@ def write_fasta(seq_records, path):
         for i in seq_records:
             SeqIO.write(i, output_handle, "fasta")
 
+# Retrieves genbank files and returns handle.
+def get_genbank_handle(accession_ids):
+    Entrez.email = config.email
+    handle = Entrez.efetch(db='nucleotide', id=accession_ids, rettype='gb', retmode='text')
+    return handle
+
+# Writes genbank file using handle from get_genbank_handle
+def write_genbank(handle, path):
+    with open(path, 'w') as f:
+        f.write(handle.read())
+
 # Write dataframe to CSV.
 def df_to_csv(df, path):
     df.to_csv(path, index=False)
+
+# Read CSV to datafrmae
+def csv_to_df(path):
+    return pd.read_csv(path)
 
 # Standardize host name.
 # Supported host types: duck, chicken, swine, bovine, and human.
